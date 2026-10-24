@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.9", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: System libraries (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev libgl1-mesa-dev zlib1g-dev
+      - name: System libraries (macOS)
+        if: runner.os == 'macOS'
+        run: brew install sdl2
+      - name: Install
+        run: pip install ".[test]"
+      - name: Viewer self-test
+        run: |
+          train-lens --version
+          train-lens --selftest
+          train-lens --check examples/xor.tlens
+      - name: Python tests
+        run: pytest -v
+
+  test-torch:
+    name: PyTorch integration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update && sudo apt-get install -y libsdl2-dev libgl1-mesa-dev zlib1g-dev
+      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install ".[test]"
+      - run: pytest -v
