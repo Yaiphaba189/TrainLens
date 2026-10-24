@@ -29,9 +29,16 @@ for step, (x, y) in enumerate(loader):
 
 ![Training monitor flagging overfitting](https://raw.githubusercontent.com/Yaiphaba189/TrainLens/main/docs/monitor-overfitting.png)
 
-| Live network view | LR far too high: the checks catch it |
-|---|---|
-| ![Network view](https://raw.githubusercontent.com/Yaiphaba189/TrainLens/main/docs/demo-2d.png) | ![LR too high](https://raw.githubusercontent.com/Yaiphaba189/TrainLens/main/docs/monitor-lr-too-high.png) |
+<table>
+  <tr>
+    <th width="50%">Live network view</th>
+    <th width="50%">LR far too high: the checks catch it</th>
+  </tr>
+  <tr>
+    <td width="50%"><img src="https://raw.githubusercontent.com/Yaiphaba189/TrainLens/main/docs/demo-2d.png" alt="Network view" width="100%"></td>
+    <td width="50%"><img src="https://raw.githubusercontent.com/Yaiphaba189/TrainLens/main/docs/monitor-lr-too-high.png" alt="LR too high" width="100%"></td>
+  </tr>
+</table>
 
 **Contents:** [Quick start](#quick-start) ·
 [Training monitor](#training-monitor) · [Network view](#network-view) ·
