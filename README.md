@@ -1,7 +1,7 @@
 # NeuroLens
 
-[![PyPI](https://img.shields.io/pypi/v/neurolens)](https://pypi.org/project/neurolens/)
-[![Python](https://img.shields.io/pypi/pyversions/neurolens)](https://pypi.org/project/neurolens/)
+[![PyPI](https://img.shields.io/pypi/v/neurolens?cacheSeconds=3600)](https://pypi.org/project/neurolens/)
+[![Python](https://img.shields.io/pypi/pyversions/neurolens?cacheSeconds=3600)](https://pypi.org/project/neurolens/)
 [![CI](https://github.com/Yaiphaba189/TrainLens/actions/workflows/ci.yml/badge.svg)](https://github.com/Yaiphaba189/TrainLens/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
