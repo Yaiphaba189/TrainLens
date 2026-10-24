@@ -1,9 +1,13 @@
 name: Release
 
-# Push a tag like v0.1.0 to build wheels for macOS and Linux and publish to PyPI.
+# Push a tag like v0.1.0 to build wheels for macOS and Linux, create the GitHub
+# release and publish to PyPI. Changes to the build setup on main only build and
+# test the wheels, so packaging problems show up before a release is tagged.
 on:
   push:
     tags: ["v*"]
+    branches: [main]
+    paths: ["pyproject.toml", "CMakeLists.txt", "viewer/**", ".github/workflows/release.yml"]
   workflow_dispatch:
 
 jobs:
@@ -13,8 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Linux x86_64 and aarch64, macOS Intel and Apple Silicon.
-        os: [ubuntu-latest, ubuntu-24.04-arm, macos-13, macos-14]
+        # Linux x86_64 and aarch64, macOS Intel (macos-15-intel) and Apple Silicon (macos-14).
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-15-intel, macos-14]
     steps:
       - uses: actions/checkout@v4
       - uses: pypa/cibuildwheel@v2.22.0

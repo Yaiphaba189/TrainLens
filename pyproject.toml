@@ -64,8 +64,11 @@ test-command = "train-lens-viewer --selftest && train-lens-viewer --check {proje
 environment = { CMAKE_ARGS = "-DTRAIN_LENS_VENDOR_SDL=ON" }
 
 [tool.cibuildwheel.linux]
+# glibc 2.28+ (Ubuntu 20.04+, Debian 10+, RHEL 8+); the older manylinux2014 image lacks current numpy wheels for the tests.
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
 # Headers SDL2 needs to build its X11/Wayland video backends; the libraries themselves are loaded at run time.
-before-all = "dnf install -y libX11-devel libXext-devel libXrandr-devel libXcursor-devel libXi-devel libXfixes-devel libXScrnSaver-devel mesa-libGL-devel zlib-devel || yum install -y libX11-devel libXext-devel libXrandr-devel libXcursor-devel libXi-devel libXfixes-devel libXScrnSaver-devel mesa-libGL-devel zlib-devel"
+before-all = "dnf install -y libX11-devel libXext-devel libXrandr-devel libXcursor-devel libXi-devel libXfixes-devel libXScrnSaver-devel mesa-libGL-devel zlib-devel"
 
 [tool.cibuildwheel.macos]
 environment = { CMAKE_ARGS = "-DTRAIN_LENS_VENDOR_SDL=ON", MACOSX_DEPLOYMENT_TARGET = "11.0" }
