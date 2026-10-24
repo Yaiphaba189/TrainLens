@@ -1,0 +1,18 @@
+# build output
+build/
+dist/
+wheelhouse/
+_skbuild/
+*.egg-info/
+
+# python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# screenshots saved with the S key
+/train-lens-*.png
+
+.DS_Store

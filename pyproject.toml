@@ -1,0 +1,71 @@
+[build-system]
+requires = ["scikit-build-core>=0.10"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "train-lens"
+version = "0.1.0"
+description = "Watch neural networks train, live: a fast C++/OpenGL viewer for training curves, gradient health and neuron activity, fed from PyTorch or any Python code."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Kh Yaiphaba Singh" }]
+requires-python = ">=3.9"
+dependencies = []
+keywords = ["deep-learning", "pytorch", "visualization", "training", "monitoring", "neural-network", "opengl"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Education",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: C++",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Scientific/Engineering :: Visualization",
+  "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+torch = ["torch>=2.0"]
+test = ["pytest>=7", "numpy"]
+
+[project.scripts]
+train-lens = "train_lens.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Yaiphaba189/TrainLens"
+Issues = "https://github.com/Yaiphaba189/TrainLens/issues"
+Changelog = "https://github.com/Yaiphaba189/TrainLens/blob/main/CHANGELOG.md"
+
+[tool.scikit-build]
+minimum-version = "build-system.requires"
+cmake.version = ">=3.20"
+wheel.packages = ["src/train_lens"]
+# The viewer does not link against Python, so one wheel per platform serves every Python 3 version.
+wheel.py-api = "py3"
+sdist.exclude = ["docs/*.png", ".github", "build", "dist"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.cibuildwheel]
+build = "cp312-*"
+skip = "*-musllinux_*"
+test-extras = ["test"]
+test-command = "train-lens-viewer --selftest && train-lens-viewer --check {project}/examples/xor.tlens && pytest {project}/tests"
+environment = { CMAKE_ARGS = "-DTRAIN_LENS_VENDOR_SDL=ON" }
+
+[tool.cibuildwheel.linux]
+# Headers SDL2 needs to build its X11/Wayland video backends; the libraries themselves are loaded at run time.
+before-all = "dnf install -y libX11-devel libXext-devel libXrandr-devel libXcursor-devel libXi-devel libXfixes-devel libXScrnSaver-devel mesa-libGL-devel zlib-devel || yum install -y libX11-devel libXext-devel libXrandr-devel libXcursor-devel libXi-devel libXfixes-devel libXScrnSaver-devel mesa-libGL-devel zlib-devel"
+
+[tool.cibuildwheel.macos]
+environment = { CMAKE_ARGS = "-DTRAIN_LENS_VENDOR_SDL=ON", MACOSX_DEPLOYMENT_TARGET = "11.0" }
