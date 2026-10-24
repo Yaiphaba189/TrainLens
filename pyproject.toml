@@ -64,6 +64,8 @@ test-command = "train-lens-viewer --selftest && train-lens-viewer --check {proje
 environment = { CMAKE_ARGS = "-DTRAIN_LENS_VENDOR_SDL=ON" }
 
 [tool.cibuildwheel.linux]
+# 64-bit only: x86_64 on the Intel runner, aarch64 on the ARM runner (no 32-bit i686 wheels).
+archs = "native"
 # glibc 2.28+ (Ubuntu 20.04+, Debian 10+, RHEL 8+); the older manylinux2014 image lacks current numpy wheels for the tests.
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
