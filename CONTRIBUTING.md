@@ -1,4 +1,4 @@
-# Contributing to TrainLens
+# Contributing to NeuroLens
 
 Thanks for helping. Bug reports, examples and pull requests are all welcome.
 
@@ -12,7 +12,7 @@ your system doesn't have it.
 git clone https://github.com/Yaiphaba189/TrainLens
 cd TrainLens
 python -m venv .venv && source .venv/bin/activate
-pip install -e ".[test]"        # builds the viewer and installs `train-lens`
+pip install -e ".[test]"        # builds the viewer and installs `neurolens`
 ```
 
 To use your system SDL2, which gives faster builds, install it first:
@@ -21,41 +21,41 @@ To use your system SDL2, which gives faster builds, install it first:
 ## Run the tests
 
 ```sh
-train-lens --selftest                    # C++ checks: protocol, forward pass, training alerts
-train-lens --check examples/xor.tlens    # file loading
-pytest                                   # Python client; PyTorch tests run when torch is installed
+neurolens --selftest                    # C++ checks: protocol, forward pass, training alerts
+neurolens --check examples/xor.nlens    # file loading
+pytest                                  # Python client; PyTorch tests run when torch is installed
 ```
 
 When you change the viewer, also look at it. These commands save a screenshot
 without you touching the window:
 
 ```sh
-train-lens --frames 150 --screenshot /tmp/shot.png            # network demo
-python examples/torch_monitor_cnn.py & train-lens --frames 900 --screenshot /tmp/monitor.png
+neurolens --frames 150 --screenshot /tmp/shot.png            # network demo
+python examples/torch_monitor_cnn.py & neurolens --frames 900 --screenshot /tmp/monitor.png
 ```
 
 ## Build only the viewer (no pip)
 
 ```sh
 cmake -B build && cmake --build build -j
-TRAIN_LENS_VIEWER=$PWD/build/train-lens-viewer python examples/numpy_xor_train.py
+NEUROLENS_VIEWER=$PWD/build/neurolens-viewer python examples/numpy_xor_train.py
 ```
 
-`TRAIN_LENS_VIEWER` tells the Python package where your viewer build is.
+`NEUROLENS_VIEWER` tells the Python package where your viewer build is.
 
 ## Layout
 
 | Path | What lives there |
 |---|---|
 | `viewer/` | C++ viewer: window and input (`main.cpp`), drawing (`render.cpp`), protocol, TCP server, training checks |
-| `src/train_lens/` | Python package: `Viewer` client, `monitor()`, `watch()`, `launch()`, `.tlens` writer, CLI |
+| `src/neurolens/` | Python package: `Viewer` client, `monitor()`, `watch()`, `launch()`, `.nlens` writer, CLI |
 | `tests/` | pytest suite |
 | `examples/` | runnable demos |
 | `CMakeLists.txt`, `pyproject.toml` | build: scikit-build-core compiles the viewer into the wheel |
 
 ## Guidelines
 
-- Keep the client non-blocking. Nothing in `train_lens` may slow down or
+- Keep the client non-blocking. Nothing in `neurolens` may slow down or
   crash a training loop when the viewer is closed or slow.
 - Protocol changes need three things: a parser in `viewer/protocol.cpp`, a
   sender in `client.py`, and a row in the README protocol table. Keep old

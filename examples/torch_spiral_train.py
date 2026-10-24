@@ -1,9 +1,9 @@
 """Trains a PyTorch MLP on a 3-class spiral, then runs inference, while
-TrainLens shows the real activations from each forward pass.
+NeuroLens shows the real activations from each forward pass.
 
     python3 examples/torch_spiral_train.py        # needs: pip install torch
 
-The only TrainLens lines are `train_lens.watch(model, ...)` and `handle.status(...)`.
+The only NeuroLens lines are `neurolens.watch(model, ...)` and `handle.status(...)`.
 """
 
 import math
@@ -12,7 +12,7 @@ import time
 import torch
 import torch.nn as nn
 
-import train_lens
+import neurolens
 
 torch.manual_seed(0)
 
@@ -35,9 +35,9 @@ model = nn.Sequential(
 )
 opt = torch.optim.Adam(model.parameters(), lr=0.01)
 
-train_lens.launch()  # opens the viewer window unless one is already running
-handle = train_lens.watch(model, labels=["red", "green", "blue"], max_hz=20, weights_every=0.5)
-mon = train_lens.monitor(model, opt, viewer=handle.viewer)  # curves and layer health beside the network
+neurolens.launch()  # opens the viewer window unless one is already running
+handle = neurolens.watch(model, labels=["red", "green", "blue"], max_hz=20, weights_every=0.5)
+mon = neurolens.monitor(model, opt, viewer=handle.viewer)  # curves and layer health beside the network
 
 # ---- training ----
 for epoch in range(300):

@@ -1,8 +1,8 @@
-// TrainLens: real-time neural network visualizer and training monitor (C++ / OpenGL / SDL2).
+// NeuroLens: real-time neural network visualizer and training monitor (C++ / OpenGL / SDL2).
 //
 // Shows a dense feed-forward network as glowing neurons and connections, and
-// training curves with layer health checks. Data comes from a .tlens file,
-// from Python code over TCP (the train_lens package), or from stdin; without
+// training curves with layer health checks. Data comes from a .nlens file,
+// from Python code over TCP (the neurolens package), or from stdin; without
 // any, it runs a random demo network.
 
 #define SDL_MAIN_HANDLED
@@ -24,14 +24,14 @@
 #include "render.hpp"
 #include "server.hpp"
 
-#ifndef TRAIN_LENS_VERSION
-#define TRAIN_LENS_VERSION "dev"
+#ifndef NEUROLENS_VERSION
+#define NEUROLENS_VERSION "dev"
 #endif
 
 namespace {
 
 const char* kUsage =
-    "usage: train-lens [options] [model.tlens]\n"
+    "usage: neurolens [options] [model.nlens]\n"
     "\n"
     "With no model file, shows a random demo network and waits for a client.\n"
     "\n"
@@ -43,7 +43,7 @@ const char* kUsage =
     "  --seed N          random seed for the demo weights\n"
     "  --max-show N      draw at most N neurons per layer (default 64)\n"
     "  --3d              start in the 3D view (layers as grids)\n"
-    "  --check FILE      validate a .tlens file, print a summary and exit\n"
+    "  --check FILE      validate a .nlens file, print a summary and exit\n"
     "  --selftest        run built-in checks and exit\n"
     "  --frames N        quit after N frames (for scripts)\n"
     "  --screenshot FILE save a PNG of the last frame (use with --frames)\n"
@@ -88,19 +88,19 @@ int parse_args(int argc, char** argv, Options& o) {
         std::string a = argv[i];
         auto next = [&](const char* what) -> const char* {
             if (i + 1 >= argc) {
-                std::fprintf(stderr, "train-lens: %s needs %s\n", a.c_str(), what);
+                std::fprintf(stderr, "neurolens: %s needs %s\n", a.c_str(), what);
                 return nullptr;
             }
             return argv[++i];
         };
         if (a == "-h" || a == "--help") { std::fputs(kUsage, stdout); return 0; }
-        else if (a == "-V" || a == "--version") { std::printf("train-lens viewer %s\n", TRAIN_LENS_VERSION); return 0; }
+        else if (a == "-V" || a == "--version") { std::printf("neurolens viewer %s\n", NEUROLENS_VERSION); return 0; }
         else if (a == "--port") { const char* v = next("a number"); if (!v) return 2; o.port = std::atoi(v); }
         else if (a == "--no-server") o.server = false;
         else if (a == "--stdin") o.use_stdin = true;
         else if (a == "--layers") {
             const char* v = next("sizes like 16,26,24");
-            if (!v || !parse_layers(v, o.demo_layers)) { std::fprintf(stderr, "train-lens: --layers wants two or more sizes, like 16,26,24\n"); return 2; }
+            if (!v || !parse_layers(v, o.demo_layers)) { std::fprintf(stderr, "neurolens: --layers wants two or more sizes, like 16,26,24\n"); return 2; }
         }
         else if (a == "--seed") { const char* v = next("a number"); if (!v) return 2; o.seed = (unsigned)std::strtoul(v, nullptr, 10); }
         else if (a == "--max-show") { const char* v = next("a number"); if (!v) return 2; o.max_show = std::max(1, std::atoi(v)); }
@@ -109,12 +109,12 @@ int parse_args(int argc, char** argv, Options& o) {
         else if (a == "--screenshot") { const char* v = next("a file"); if (!v) return 2; o.screenshot = v; }
         else if (a == "--selftest") o.selftest = true;
         else if (a == "--3d") o.three_d = true;
-        else if (!a.empty() && a[0] == '-') { std::fprintf(stderr, "train-lens: unknown option %s\n\n%s", a.c_str(), kUsage); return 2; }
+        else if (!a.empty() && a[0] == '-') { std::fprintf(stderr, "neurolens: unknown option %s\n\n%s", a.c_str(), kUsage); return 2; }
         else if (o.file.empty()) o.file = a;
-        else { std::fprintf(stderr, "train-lens: only one model file can be given\n"); return 2; }
+        else { std::fprintf(stderr, "neurolens: only one model file can be given\n"); return 2; }
     }
-    if (o.port < 1 || o.port > 65535) { std::fprintf(stderr, "train-lens: port must be 1-65535\n"); return 2; }
-    if (!o.screenshot.empty() && o.frames < 1) { std::fprintf(stderr, "train-lens: --screenshot needs --frames N\n"); return 2; }
+    if (o.port < 1 || o.port > 65535) { std::fprintf(stderr, "neurolens: port must be 1-65535\n"); return 2; }
+    if (!o.screenshot.empty() && o.frames < 1) { std::fprintf(stderr, "neurolens: --screenshot needs --frames N\n"); return 2; }
     return -1;
 }
 
@@ -221,7 +221,7 @@ int run_check(const std::string& path) {
     State st;
     std::string err;
     if (!load_file(st, path, err)) {
-        std::fprintf(stderr, "train-lens: %s\n", err.c_str());
+        std::fprintf(stderr, "neurolens: %s\n", err.c_str());
         return 1;
     }
     const Network& n = st.net;
@@ -321,7 +321,7 @@ struct Window {
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, multisample ? 1 : 0);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, multisample ? 4 : 0);
-        win = SDL_CreateWindow("TrainLens", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1400, 860,
+        win = SDL_CreateWindow("NeuroLens", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1400, 860,
                                SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
         if (!win) return false;
         ctx = SDL_GL_CreateContext(win);
@@ -352,7 +352,7 @@ int main(int argc, char** argv) {
     std::string err, source;
     if (!opt.file.empty()) {
         if (!load_file(st, opt.file, err)) {
-            std::fprintf(stderr, "train-lens: %s\n", err.c_str());
+            std::fprintf(stderr, "neurolens: %s\n", err.c_str());
             return 1;
         }
         source = "FILE " + base_name(opt.file);
@@ -365,26 +365,26 @@ int main(int argc, char** argv) {
 
     LineServer srv;
     if (opt.server && !srv.listen(opt.port, err))
-        std::fprintf(stderr, "train-lens: not listening for clients (%s)\n", err.c_str());
+        std::fprintf(stderr, "neurolens: not listening for clients (%s)\n", err.c_str());
     if (opt.use_stdin) srv.enable_stdin();
 
-    std::printf("TrainLens - real-time neural network visualizer\n");
+    std::printf("NeuroLens - real-time neural network visualizer\n");
     std::printf("  showing:   %s (%s)\n", join_sizes(st.net.sizes, "-").c_str(), source.c_str());
     if (srv.listening())
-        std::printf("  listening: 127.0.0.1:%d  (Python: train_lens.monitor(model, optimizer) or train_lens.watch(model))\n", srv.port());
+        std::printf("  listening: 127.0.0.1:%d  (Python: neurolens.monitor(model, optimizer) or neurolens.watch(model))\n", srv.port());
     std::printf("  keys:      %s, ESC quits\n", kHelpLine);
     std::fflush(stdout);
 
     SDL_SetMainReady();
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        std::fprintf(stderr, "train-lens: cannot start SDL: %s\n", SDL_GetError());
+        std::fprintf(stderr, "neurolens: cannot start SDL: %s\n", SDL_GetError());
         return 1;
     }
     int exit_code = 0;
     {
         Window w;
         if (!w.open(true) && !w.open(false)) {
-            std::fprintf(stderr, "train-lens: cannot open an OpenGL window: %s\n", SDL_GetError());
+            std::fprintf(stderr, "neurolens: cannot open an OpenGL window: %s\n", SDL_GetError());
             SDL_Quit();
             return 1;
         }
@@ -437,7 +437,7 @@ int main(int argc, char** argv) {
                             case SDLK_c: for (auto& m : sim.muted) std::fill(m.begin(), m.end(), 0); break;
                             case SDLK_r:
                                 st.net.randomize((unsigned)SDL_GetTicks());
-                                std::printf("train-lens: weights randomized\n");
+                                std::printf("neurolens: weights randomized\n");
                                 break;
                             case SDLK_RIGHTBRACKET: case SDLK_EQUALS: view.gain = std::min(4.f, view.gain * 1.25f); break;
                             case SDLK_LEFTBRACKET: case SDLK_MINUS: view.gain = std::max(0.1f, view.gain / 1.25f); break;
@@ -480,7 +480,7 @@ int main(int argc, char** argv) {
             srv.poll([&](const std::string& line) {
                 std::string e2;
                 if (!apply_line(st, line, now, e2) && ++bad_lines <= 20)
-                    std::fprintf(stderr, "train-lens: ignored a line: %s%s\n", e2.c_str(),
+                    std::fprintf(stderr, "neurolens: ignored a line: %s%s\n", e2.c_str(),
                                  bad_lines == 20 ? " (further errors hidden)" : "");
             });
             if (sim.version != st.version) {
@@ -551,9 +551,9 @@ int main(int argc, char** argv) {
             if (show_net_now) {
                 std::string act_line;
                 for (Act a : st.net.acts) act_line += std::string(act_line.empty() ? "" : " ") + act_name(a);
-                scene.hud = {"TRAINLENS  " + join_sizes(st.net.sizes, "-"), act_line, src};
+                scene.hud = {"NEUROLENS  " + join_sizes(st.net.sizes, "-"), act_line, src};
             } else {
-                scene.hud = {"TRAINLENS  TRAINING MONITOR", src};
+                scene.hud = {"NEUROLENS  TRAINING MONITOR", src};
             }
             if (!st.status.empty()) {
                 scene.hud_highlight = (int)scene.hud.size();
@@ -581,12 +581,12 @@ int main(int argc, char** argv) {
                 if (want_shot) {
                     char name[64];
                     const std::time_t t = std::time(nullptr);
-                    std::strftime(name, sizeof name, "train-lens-%Y%m%d-%H%M%S.png", std::localtime(&t));
+                    std::strftime(name, sizeof name, "neurolens-%Y%m%d-%H%M%S.png", std::localtime(&t));
                     path = name;
                 }
                 std::string e2;
-                if (save_framebuffer_png(path, fb_w, fb_h, e2)) std::printf("train-lens: saved %s\n", path.c_str());
-                else std::fprintf(stderr, "train-lens: screenshot failed: %s\n", e2.c_str());
+                if (save_framebuffer_png(path, fb_w, fb_h, e2)) std::printf("neurolens: saved %s\n", path.c_str());
+                else std::fprintf(stderr, "neurolens: screenshot failed: %s\n", e2.c_str());
                 want_shot = false;
             }
             SDL_GL_SwapWindow(w.win);
@@ -599,7 +599,7 @@ int main(int argc, char** argv) {
             }
             if (last_frame) running = false;
         }
-        if (opt.frames > 0) std::printf("train-lens: drew %ld frames\n", frame);
+        if (opt.frames > 0) std::printf("neurolens: drew %ld frames\n", frame);
     }
     SDL_Quit();
     return exit_code;

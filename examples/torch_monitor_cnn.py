@@ -4,7 +4,7 @@ validation, the learning rate, gradient flow per layer and automatic checks.
     python3 examples/torch_monitor_cnn.py             # healthy run, overfits near the end
     python3 examples/torch_monitor_cnn.py --lr 3      # see the viewer flag a learning rate that is too high
 
-Nothing here is specific to CNNs: `train_lens.monitor(model, optimizer)` works for
+Nothing here is specific to CNNs: `neurolens.monitor(model, optimizer)` works for
 any PyTorch model. The data is synthetic so the example needs no downloads.
 """
 
@@ -14,7 +14,7 @@ import time
 import torch
 import torch.nn as nn
 
-import train_lens
+import neurolens
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--lr", type=float, default=0.003)
@@ -48,8 +48,8 @@ model = nn.Sequential(
 opt = torch.optim.Adam(model.parameters(), lr=args.lr)
 loss_fn = nn.CrossEntropyLoss()
 
-train_lens.launch()  # opens the viewer window unless one is already running
-mon = train_lens.monitor(model, opt)
+neurolens.launch()  # opens the viewer window unless one is already running
+mon = neurolens.monitor(model, opt)
 
 step = 0
 for epoch in range(args.epochs):

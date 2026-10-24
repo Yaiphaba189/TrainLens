@@ -1,25 +1,25 @@
-# TrainLens
+# NeuroLens
 
-[![PyPI](https://img.shields.io/pypi/v/train-lens)](https://pypi.org/project/train-lens/)
-[![Python](https://img.shields.io/pypi/pyversions/train-lens)](https://pypi.org/project/train-lens/)
+[![PyPI](https://img.shields.io/pypi/v/neurolens)](https://pypi.org/project/neurolens/)
+[![Python](https://img.shields.io/pypi/pyversions/neurolens)](https://pypi.org/project/neurolens/)
 [![CI](https://github.com/Yaiphaba189/TrainLens/actions/workflows/ci.yml/badge.svg)](https://github.com/Yaiphaba189/TrainLens/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**Watch neural networks train, live.** TrainLens is a fast C++/OpenGL
+**Watch neural networks train, live.** NeuroLens is a fast C++/OpenGL
 window that shows what your model is doing *while it trains*: loss curves,
 gradient flow through every layer, update sizes, and the neurons themselves.
 Built-in checks tell you when something goes wrong: NaN loss, exploding
 gradients, a learning rate that is too high, overfitting.
 
 ```sh
-pip install train-lens
+pip install neurolens
 ```
 
 ```python
-import train_lens
+import neurolens
 
-train_lens.launch()                        # opens the window
-mon = train_lens.monitor(model, optimizer) # any PyTorch model
+neurolens.launch()                        # opens the window
+mon = neurolens.monitor(model, optimizer) # any PyTorch model
 
 for step, (x, y) in enumerate(loader):
     loss = loss_fn(model(x), y)
@@ -47,7 +47,7 @@ for step, (x, y) in enumerate(loader):
 [Troubleshooting](#troubleshooting) · [Roadmap](#roadmap) ·
 [Contributing](#contributing)
 
-## Why TrainLens
+## Why NeuroLens
 
 - **Works with any PyTorch model.** CNNs, transformers and LoRA fine-tunes
   all work: `monitor()` only reads parameters and gradients.
@@ -66,13 +66,13 @@ for step, (x, y) in enumerate(loader):
 
 1. **Install** on macOS (Intel or Apple Silicon) or Linux, with Python 3.9+:
    ```sh
-   pip install train-lens              # add [torch] to also install PyTorch
+   pip install neurolens              # add [torch] to also install PyTorch
    ```
 2. **Add three lines** to your training script:
    ```python
-   import train_lens
-   train_lens.launch()                          # once, before training
-   mon = train_lens.monitor(model, optimizer)   # once, before training
+   import neurolens
+   neurolens.launch()                          # once, before training
+   mon = neurolens.monitor(model, optimizer)   # once, before training
    ...
    mon.step(step, loss=loss)                    # every step, after optimizer.step()
    ```
@@ -87,18 +87,18 @@ That needs a C++ compiler, plus OpenGL and X11 headers on Linux.
 From a terminal:
 
 ```sh
-train-lens                  # opens the window and waits for your training script
-train-lens model.tlens      # opens a saved network
-train-lens --help           # all options
+neurolens                  # opens the window and waits for your training script
+neurolens model.nlens      # opens a saved network
+neurolens --help           # all options
 ```
 
-Or from Python, in a script or notebook: `train_lens.launch()`. If a viewer
+Or from Python, in a script or notebook: `neurolens.launch()`. If a viewer
 is already open, `launch()` does nothing.
 
 ## Training monitor
 
 ```python
-mon = train_lens.monitor(model, optimizer)
+mon = neurolens.monitor(model, optimizer)
 
 for step, (x, y) in enumerate(loader):
     out = model(x)
@@ -141,7 +141,7 @@ trainable values. With LoRA, only the adapters count toward that limit.
 For MLPs, you can watch the neurons themselves, during training or inference:
 
 ```python
-handle = train_lens.watch(model, labels=["cat", "dog", "bird"])
+handle = neurolens.watch(model, labels=["cat", "dog", "bird"])
 model(x)            # each forward pass lights up the network (max 20 per second)
 handle.remove()
 ```
@@ -167,7 +167,7 @@ Layers wider than 64 neurons are drawn as an evenly spaced sample.
 ## Any framework
 
 ```python
-v = train_lens.Viewer()
+v = neurolens.Viewer()
 v.metric("loss", 0.42, step)                                  # curves
 v.layer_stats([("encoder", grad_norm, weight_norm, update_ratio), ...])
 v.topology([784, 128, 10], ["relu", "softmax"])               # network view
@@ -177,13 +177,13 @@ v.frame([x, h, y])        # send real activations
 v.status(epoch=3)
 ```
 
-Save a network to a file with `train_lens.save_torch(model, "net.tlens")` or
-`train_lens.save_tlens(...)`. Open it later with `train-lens net.tlens`.
+Save a network to a file with `neurolens.save_torch(model, "net.nlens")` or
+`neurolens.save_nlens(...)`. Open it later with `neurolens net.nlens`.
 
 ## How it works
 
 ```
- your training script                                 TrainLens window
+ your training script                                 NeuroLens window
 ┌─────────────────────────────┐                     ┌───────────────────────────┐
 │ monitor() / watch() hooks   │  TCP 127.0.0.1:5757  │ C++ / OpenGL, 60+ fps     │
 │ read params, grads, acts    │ ── plain text ──────▶│ curves · layer health     │
@@ -203,7 +203,7 @@ Save a network to a file with `train_lens.save_torch(model, "net.tlens")` or
 
 ## Protocol
 
-`.tlens` files and the TCP stream (127.0.0.1:5757) use the same plain-text
+`.nlens` files and the TCP stream (127.0.0.1:5757) use the same plain-text
 commands, one per line. You can try them by hand with `nc localhost 5757`.
 
 | Command | Meaning |
@@ -225,7 +225,7 @@ commands, one per line. You can try them by hand with `nc localhost 5757`.
 
 ```sh
 git clone https://github.com/Yaiphaba189/TrainLens && cd TrainLens
-# each example opens the viewer window itself with train_lens.launch()
+# each example opens the viewer window itself with neurolens.launch()
 python examples/torch_monitor_cnn.py          # CNN: the monitor flags overfitting
 python examples/torch_monitor_cnn.py --lr 3   # learning rate far too high
 python examples/torch_spiral_train.py         # MLP: network view plus monitor, then inference
@@ -236,10 +236,10 @@ python examples/numpy_xor_train.py            # no PyTorch: plain numpy
 
 | Problem | Fix |
 |---|---|
-| **Training on a remote GPU server over SSH** | The window needs a screen, so run it on your laptop and tunnel the port backwards: run `train-lens` locally, connect with `ssh -R 5757:localhost:5757 gpu-box`, and start training on the server as usual. |
+| **Training on a remote GPU server over SSH** | The window needs a screen, so run it on your laptop and tunnel the port backwards: run `neurolens` locally, connect with `ssh -R 5757:localhost:5757 gpu-box`, and start training on the server as usual. |
 | **Google Colab, Kaggle, or a headless server with no SSH from your machine** | Not supported yet: the viewer needs a display it can reach. |
-| **`cannot find the train-lens-viewer program`** | The compiled viewer is missing. Reinstall with `pip install --force-reinstall train-lens`. |
-| **`not listening for clients (port 5757 ...)`** | Another viewer is already open. Use that one, or pick another port: `train-lens --port 6000` and `monitor(..., port=6000)`. |
+| **`cannot find the neurolens-viewer program`** | The compiled viewer is missing. Reinstall with `pip install --force-reinstall neurolens`. |
+| **`not listening for clients (port 5757 ...)`** | Another viewer is already open. Use that one, or pick another port: `neurolens --port 6000` and `monitor(..., port=6000)`. |
 | **Curves appear but the layer table is empty, or every layer shows `NO GRAD`** | Call `mon.step()` after `loss.backward()` and before the next `optimizer.zero_grad()`. The monitor prints this hint once. |
 | **No update sizes in the layer table** | Pass the optimizer: `monitor(model, optimizer)`. They also turn off above 200M trainable values. |
 | **`pip install` compiles for a long time** | No prebuilt wheel exists for your platform, so it builds the viewer, and SDL2 if needed. This happens only once. |

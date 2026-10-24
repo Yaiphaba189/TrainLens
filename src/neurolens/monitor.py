@@ -1,6 +1,6 @@
 """Training monitor for any PyTorch model: curves, gradient flow, update sizes.
 
-    mon = train_lens.monitor(model, optimizer)
+    mon = neurolens.monitor(model, optimizer)
     for step, (x, y) in enumerate(loader):
         loss = loss_fn(model(x), y)
         optimizer.zero_grad()
@@ -60,10 +60,10 @@ class Monitor:
         n_params = sum(p.numel() for _, ps in self._groups for p in ps)
         if track_updates and optimizer is not None:
             if not hasattr(optimizer, "register_step_pre_hook"):
-                print("train-lens: this torch version has no optimizer step hooks; update sizes are off",
+                print("neurolens: this torch version has no optimizer step hooks; update sizes are off",
                       file=sys.stderr)
             elif n_params > max_update_params:
-                print(f"train-lens: {n_params:,} trainable values is over max_update_params; update sizes are off "
+                print(f"neurolens: {n_params:,} trainable values is over max_update_params; update sizes are off "
                       "(they need a copy of the weights for one step)", file=sys.stderr)
             else:
                 self._hooks = [optimizer.register_step_pre_hook(self._pre_step),
@@ -167,7 +167,7 @@ class Monitor:
             self.viewer.metric("grad_norm", total ** 0.5, self._step)
         elif not self._warned_no_grad:
             self._warned_no_grad = True
-            print("train-lens: no gradients found; call monitor.step() after loss.backward() "
+            print("neurolens: no gradients found; call monitor.step() after loss.backward() "
                   "and before optimizer.zero_grad()", file=sys.stderr)
 
 

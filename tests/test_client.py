@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 
-import train_lens
+import neurolens
 
 
 class FakeViewer:
@@ -56,7 +56,7 @@ def free_port():
 class ViewerTest(unittest.TestCase):
     def test_sends_topology_weights_frames_and_status(self):
         fake = FakeViewer()
-        v = train_lens.Viewer(port=fake.port, quiet=True)
+        v = neurolens.Viewer(port=fake.port, quiet=True)
         v.topology([2, 3, 1], ["relu", "sigmoid"], labels=["is yes"])
         v.weights(0, [[1, 2], [3, 4], [5, 6]], [0.1, 0.2, 0.3])
         v.frame([[0.5, -0.5], [1, 0, 2], [0.9]])
@@ -76,7 +76,7 @@ class ViewerTest(unittest.TestCase):
         import numpy as np
 
         fake = FakeViewer()
-        v = train_lens.Viewer(port=fake.port, quiet=True)
+        v = neurolens.Viewer(port=fake.port, quiet=True)
         v.topology([2, 2], ["linear"])
         v.weights(0, np.eye(2, dtype=np.float32))
         v.input(np.array([0.25, 1.5]))
@@ -85,7 +85,7 @@ class ViewerTest(unittest.TestCase):
         v.close()
 
     def test_no_viewer_never_blocks(self):
-        v = train_lens.Viewer(port=free_port(), quiet=True)
+        v = neurolens.Viewer(port=free_port(), quiet=True)
         t0 = time.monotonic()
         for _ in range(5000):
             v.acts(0, [0.0, 1.0])
@@ -94,7 +94,7 @@ class ViewerTest(unittest.TestCase):
         v.close()
 
     def test_bad_topology_rejected(self):
-        v = train_lens.Viewer(port=free_port(), quiet=True)
+        v = neurolens.Viewer(port=free_port(), quiet=True)
         with self.assertRaises(ValueError):
             v.topology([2, 3, 1], ["relu"])
         v.close()
@@ -103,7 +103,7 @@ class ViewerTest(unittest.TestCase):
 class MetricsTest(unittest.TestCase):
     def test_curves_logged_before_the_viewer_starts_are_replayed(self):
         port = free_port()
-        v = train_lens.Viewer(port=port, quiet=True, retry_every=0.1)
+        v = neurolens.Viewer(port=port, quiet=True, retry_every=0.1)
         for step in range(5):
             v.metrics(step, loss=1.0 / (step + 1))
         v.metric("val_loss", float("nan"), 4)
@@ -125,7 +125,7 @@ class MetricsTest(unittest.TestCase):
 
     def test_layer_stats(self):
         fake = FakeViewer()
-        v = train_lens.Viewer(port=fake.port, quiet=True)
+        v = neurolens.Viewer(port=fake.port, quiet=True)
         v.layer_stats([("enc.fc1", 0.5, 3.0, 0.001), ("head", -1, 2.0, -1)])
         self.assertEqual(fake.wait_for("pstats"), "pstats 2")
         self.assertEqual(fake.wait_for("pstat 0"), "pstat 0 enc.fc1 0.5 3 0.001")
@@ -148,7 +148,7 @@ class TorchTest(unittest.TestCase):
         model = nn.Sequential(nn.Conv1d(1, 4, 3), nn.ReLU(), nn.Flatten(), nn.Linear(4 * 6, 2))
         model[0].requires_grad_(False)  # a frozen layer is left out of the table
         opt = torch.optim.SGD([p for p in model.parameters() if p.requires_grad], lr=0.1)
-        mon = train_lens.monitor(model, opt, viewer=train_lens.Viewer(port=fake.port, quiet=True), every=0)
+        mon = neurolens.monitor(model, opt, viewer=neurolens.Viewer(port=fake.port, quiet=True), every=0)
         x, y = torch.randn(8, 1, 8), torch.randint(0, 2, (8,))
         for _ in range(3):
             loss = nn.functional.cross_entropy(model(x), y)
@@ -176,7 +176,7 @@ class TorchTest(unittest.TestCase):
 
         fake = FakeViewer()
         model = nn.Sequential(nn.Linear(3, 4), nn.ReLU(), nn.Linear(4, 2), nn.Softmax(dim=1))
-        h = train_lens.watch(model, viewer=train_lens.Viewer(port=fake.port, quiet=True), max_hz=0)
+        h = neurolens.watch(model, viewer=neurolens.Viewer(port=fake.port, quiet=True), max_hz=0)
         model(torch.randn(5, 3))
         self.assertEqual(fake.wait_for("layers "), "layers 3 4 2")
         self.assertEqual(fake.wait_for("act "), "act relu softmax")
@@ -189,8 +189,8 @@ class TorchTest(unittest.TestCase):
 class SaveNitTest(unittest.TestCase):
     def test_writes_commands(self):
         with tempfile.TemporaryDirectory() as d:
-            path = os.path.join(d, "m.tlens")
-            train_lens.save_tlens(path, [2, 1], ["sigmoid"], weights=[[[0.5, -1]]], biases=[[2]],
+            path = os.path.join(d, "m.nlens")
+            neurolens.save_nlens(path, [2, 1], ["sigmoid"], weights=[[[0.5, -1]]], biases=[[2]],
                               labels=["out"], input=[1, 0])
             lines = Path(path).read_text().splitlines()
         self.assertIn("layers 2 1", lines)

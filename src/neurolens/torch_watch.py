@@ -1,6 +1,6 @@
-"""Attaches TrainLens to a PyTorch MLP with forward hooks.
+"""Attaches NeuroLens to a PyTorch MLP with forward hooks.
 
-    handle = train_lens.watch(model)      # during training or inference
+    handle = neurolens.watch(model)      # during training or inference
     ...                                 # run the model as usual
     handle.status(epoch=e, loss=l)
     handle.remove()
@@ -44,7 +44,7 @@ def _mlp_layers(model):
         raise ValueError("no nn.Linear layers found in the model")
     for (a, _), (b, _) in zip(layers, layers[1:]):
         if a.out_features != b.in_features:
-            raise ValueError(f"layers do not chain ({a} then {b}); TrainLens shows plain stacks of nn.Linear")
+            raise ValueError(f"layers do not chain ({a} then {b}); NeuroLens shows plain stacks of nn.Linear")
     return [tuple(x) for x in layers]
 
 

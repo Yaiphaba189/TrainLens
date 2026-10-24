@@ -1,4 +1,4 @@
-"""Finds and starts the compiled TrainLens viewer that ships with the package."""
+"""Finds and starts the compiled NeuroLens viewer that ships with the package."""
 
 import os
 import shutil
@@ -10,18 +10,18 @@ import time
 
 __all__ = ["viewer_path", "launch"]
 
-EXE = "train-lens-viewer"
+EXE = "neurolens-viewer"
 
 
 def viewer_path():
     """Path of the viewer executable.
 
-    Looks at $TRAIN_LENS_VIEWER, then the scripts folder of the current Python
+    Looks at $NEUROLENS_VIEWER, then the scripts folder of the current Python
     environment (where pip installs it), then PATH.
     """
     candidates = []
-    if os.environ.get("TRAIN_LENS_VIEWER"):
-        candidates.append(os.environ["TRAIN_LENS_VIEWER"])
+    if os.environ.get("NEUROLENS_VIEWER"):
+        candidates.append(os.environ["NEUROLENS_VIEWER"])
     for scheme_path in (sysconfig.get_path("scripts"), os.path.dirname(sys.executable)):
         if scheme_path:
             candidates.append(os.path.join(scheme_path, EXE))
@@ -32,8 +32,8 @@ def viewer_path():
         if os.path.isfile(c) and os.access(c, os.X_OK):
             return c
     raise FileNotFoundError(
-        f"cannot find the {EXE} program. It is built when train-lens is installed with pip; "
-        "reinstall with `pip install --force-reinstall train-lens`, or point $TRAIN_LENS_VIEWER at a "
+        f"cannot find the {EXE} program. It is built when neurolens is installed with pip; "
+        "reinstall with `pip install --force-reinstall neurolens`, or point $NEUROLENS_VIEWER at a "
         "viewer you built with CMake (see CONTRIBUTING.md)."
     )
 
@@ -60,7 +60,7 @@ def launch(*args, port=5757, wait=10.0):
     deadline = time.monotonic() + wait
     while time.monotonic() < deadline:
         if proc.poll() is not None:
-            raise RuntimeError(f"the viewer exited with code {proc.returncode}; run `train-lens` in a terminal to see why")
+            raise RuntimeError(f"the viewer exited with code {proc.returncode}; run `neurolens` in a terminal to see why")
         if _listening(port):
             return proc
         time.sleep(0.1)

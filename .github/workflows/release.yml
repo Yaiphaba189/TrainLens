@@ -53,6 +53,8 @@ jobs:
           path: dist
           merge-multiple: true
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true  # a re-run after a partial upload succeeds instead of failing
 
   github-release:
     name: GitHub release

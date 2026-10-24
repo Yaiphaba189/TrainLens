@@ -1,4 +1,4 @@
-"""Streams a network to a running TrainLens viewer over TCP.
+"""Streams a network to a running NeuroLens viewer over TCP.
 
 Every call returns immediately. Messages go out on a background thread; if
 the viewer is not running or falls behind, live data (activations, inputs,
@@ -49,7 +49,7 @@ def _value(v):
 
 
 class Viewer:
-    """Connection to a TrainLens viewer window.
+    """Connection to a NeuroLens viewer window.
 
     >>> v = Viewer()                                   # 127.0.0.1:5757
     >>> v.topology([2, 8, 1], ["tanh", "sigmoid"])
@@ -76,7 +76,7 @@ class Viewer:
         self._closed = False
         self._connected = False
         self._warned = False
-        self._thread = threading.Thread(target=self._run, name="train-lens", daemon=True)
+        self._thread = threading.Thread(target=self._run, name="neurolens", daemon=True)
         self._thread.start()
 
     @property
@@ -227,8 +227,8 @@ class Viewer:
             s = socket.create_connection((self.host, self.port), timeout=1.0)
         except OSError:
             if not self._warned and not self._quiet:
-                print(f"train-lens: no viewer at {self.host}:{self.port} yet; run `train-lens` in a terminal or "
-                      "call train_lens.launch() (training continues, will keep retrying)", file=sys.stderr)
+                print(f"neurolens: no viewer at {self.host}:{self.port} yet; run `neurolens` in a terminal or "
+                      "call neurolens.launch() (training continues, will keep retrying)", file=sys.stderr)
                 self._warned = True
             return None
         s.settimeout(5.0)
@@ -238,7 +238,7 @@ class Viewer:
             self._replay = True
         self._connected = True
         if not self._quiet:
-            print(f"train-lens: connected to viewer at {self.host}:{self.port}", file=sys.stderr)
+            print(f"neurolens: connected to viewer at {self.host}:{self.port}", file=sys.stderr)
         return s
 
     def _drop_queued(self):
@@ -277,6 +277,6 @@ class Viewer:
                 sock.close()
                 sock = None
                 if not self._quiet:
-                    print("train-lens: lost the viewer; retrying", file=sys.stderr)
+                    print("neurolens: lost the viewer; retrying", file=sys.stderr)
         sock.close()
         self._connected = False

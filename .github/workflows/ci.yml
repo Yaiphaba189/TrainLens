@@ -29,9 +29,9 @@ jobs:
         run: pip install ".[test]"
       - name: Viewer self-test
         run: |
-          train-lens --version
-          train-lens --selftest
-          train-lens --check examples/xor.tlens
+          neurolens --version
+          neurolens --selftest
+          neurolens --check examples/xor.nlens
       - name: Python tests
         run: pytest -v
 

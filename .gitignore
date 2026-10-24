@@ -13,6 +13,6 @@ __pycache__/
 venv/
 
 # screenshots saved with the S key
-/train-lens-*.png
+/neurolens-*.png
 
 .DS_Store

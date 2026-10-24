@@ -3,8 +3,8 @@ requires = ["scikit-build-core>=0.10"]
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "train-lens"
-version = "0.1.0"
+name = "neurolens"
+version = "0.1.1"
 description = "Watch neural networks train, live: a fast C++/OpenGL viewer for training curves, gradient health and neuron activity, fed from PyTorch or any Python code."
 readme = "README.md"
 license = { text = "MIT" }
@@ -37,7 +37,7 @@ torch = ["torch>=2.0"]
 test = ["pytest>=7", "numpy"]
 
 [project.scripts]
-train-lens = "train_lens.cli:main"
+neurolens = "neurolens.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/Yaiphaba189/TrainLens"
@@ -47,7 +47,7 @@ Changelog = "https://github.com/Yaiphaba189/TrainLens/blob/main/CHANGELOG.md"
 [tool.scikit-build]
 minimum-version = "build-system.requires"
 cmake.version = ">=3.20"
-wheel.packages = ["src/train_lens"]
+wheel.packages = ["src/neurolens"]
 # The viewer does not link against Python, so one wheel per platform serves every Python 3 version.
 wheel.py-api = "py3"
 sdist.exclude = ["docs/*.png", ".github", "build", "dist"]
@@ -60,8 +60,8 @@ pythonpath = ["src"]
 build = "cp312-*"
 skip = "*-musllinux_*"
 test-extras = ["test"]
-test-command = "train-lens-viewer --selftest && train-lens-viewer --check {project}/examples/xor.tlens && pytest {project}/tests"
-environment = { CMAKE_ARGS = "-DTRAIN_LENS_VENDOR_SDL=ON" }
+test-command = "neurolens-viewer --selftest && neurolens-viewer --check {project}/examples/xor.nlens && pytest {project}/tests"
+environment = { CMAKE_ARGS = "-DNEUROLENS_VENDOR_SDL=ON" }
 
 [tool.cibuildwheel.linux]
 # 64-bit only: x86_64 on the Intel runner, aarch64 on the ARM runner (no 32-bit i686 wheels).
@@ -73,4 +73,4 @@ manylinux-aarch64-image = "manylinux_2_28"
 before-all = "dnf install -y libX11-devel libXext-devel libXrandr-devel libXcursor-devel libXi-devel libXfixes-devel libXScrnSaver-devel mesa-libGL-devel zlib-devel"
 
 [tool.cibuildwheel.macos]
-environment = { CMAKE_ARGS = "-DTRAIN_LENS_VENDOR_SDL=ON", MACOSX_DEPLOYMENT_TARGET = "11.0" }
+environment = { CMAKE_ARGS = "-DNEUROLENS_VENDOR_SDL=ON", MACOSX_DEPLOYMENT_TARGET = "11.0" }

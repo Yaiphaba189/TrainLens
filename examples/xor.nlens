@@ -1,5 +1,5 @@
 # A 2-2-1 network with hand-set weights that solve XOR.
-# Open it with:  train-lens examples/xor.tlens
+# Open it with:  neurolens examples/xor.nlens
 #
 # Each line is one command; the same commands are what Python clients send
 # over TCP. There is no `input` line, so the viewer feeds the two inputs with

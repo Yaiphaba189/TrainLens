@@ -1,4 +1,4 @@
-"""Trains a 2-8-8-1 network on XOR with plain numpy while TrainLens shows it.
+"""Trains a 2-8-8-1 network on XOR with plain numpy while NeuroLens shows it.
 
 Run it (it opens the viewer window itself):
     python3 examples/numpy_xor_train.py
@@ -13,7 +13,7 @@ import time
 
 import numpy as np
 
-import train_lens
+import neurolens
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--steps", type=int, default=6000)
@@ -39,8 +39,8 @@ def forward(x):
     return a
 
 
-train_lens.launch(port=args.port)  # opens the viewer window unless one is already running
-viewer = train_lens.Viewer(port=args.port)
+neurolens.launch(port=args.port)  # opens the viewer window unless one is already running
+viewer = neurolens.Viewer(port=args.port)
 viewer.topology(sizes, acts, labels=["xor"])
 
 lr = 0.5

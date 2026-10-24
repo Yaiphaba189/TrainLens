@@ -7,7 +7,7 @@
 #include "training.hpp"
 
 // Everything the viewer knows about the network it is showing. It is built
-// from text commands, which arrive from a .tlens file, a TCP client or stdin
+// from text commands, which arrive from a .nlens file, a TCP client or stdin
 // (see README.md for the command list).
 struct State {
     Network net;
