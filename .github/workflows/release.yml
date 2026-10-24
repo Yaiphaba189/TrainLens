@@ -1,12 +1,13 @@
 name: Release
 
 # Push a tag like v0.1.0 to build wheels for macOS and Linux, create the GitHub
-# release and publish to PyPI. Changes to the build setup on main only build and
-# test the wheels, so packaging problems show up before a release is tagged.
+# release and publish to PyPI. Pull requests that touch the build setup only
+# build and test the wheels, so packaging problems show up before a release.
+# (Tags get their own trigger: a paths filter on the same push event stops tag pushes from running.)
 on:
   push:
     tags: ["v*"]
-    branches: [main]
+  pull_request:
     paths: ["pyproject.toml", "CMakeLists.txt", "viewer/**", ".github/workflows/release.yml"]
   workflow_dispatch:
 
